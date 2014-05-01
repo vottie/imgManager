@@ -18,8 +18,6 @@ public class FileCopier {
         FileChannel dest = new FileOutputStream(out).getChannel();
         
         src.transferTo(0, src.size(), dest);
-        //System.out.printf("copy file [in=%s out=%s]\n",
-        //		in.getAbsolutePath(),out.getAbsolutePath());
         
         src.close();
         dest.close();

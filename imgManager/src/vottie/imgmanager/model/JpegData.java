@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import vottie.imgmanager.service.FileCopier;
 
@@ -13,6 +15,7 @@ public class JpegData {
 	private String month;
 	private String date;
 	private String filename;
+	private static Logger logger = Logger.getGlobal();
 	
 	public JpegData(String orgPath, String name) {
 		super();
@@ -44,7 +47,10 @@ public class JpegData {
 			fir.close();
 			
 			// ファイルをparseして、日付やディレクトリ情報をjpegDataへ格納
-			parse(buff);
+			if(!parse(buff)) {
+				logger.log(Level.WARNING, "parse failed {0}", getOrgPath());				
+				return;
+			}
 			
 			// コピーを指定されたディレクトリを作成し、ファイルオブジェクトを取得
 			File out = getCopyFile(outDir);
@@ -52,16 +58,15 @@ public class JpegData {
 			// ファイルコピー
 			if (out.exists()) {
 				// もしファイルが既に存在した場合は、次のファイル処理を継続
-				System.out.printf("File is existed [%s]\n", out.getAbsolutePath());
-				//continue;
+				logger.log(Level.INFO, "File is existed {0}", out.getAbsolutePath());
 			}
 			FileCopier.copy(in, out);
 			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			// TODO 格好わるいからStackTraceは表示しないようにする
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO 格好わるいからStackTraceは表示しないようにする
 			e.printStackTrace();
 		}			
 	}
@@ -70,8 +75,10 @@ public class JpegData {
 	 * ファイルを読んで解析
 	 * @param buff		読んだファイルの先頭xxxバイト
 	 * @param jpegData	解析した内容を格納するオブジェクト
+	 * @return 成功した場合はtrue
 	 */
-	private void parse(char[] buff) {
+	private boolean parse(char[] buff) {
+		boolean result = false;
 		for(int i=0; i < buff.length; i++) {
 			// 2xxx:xx:xxの2をsearch
 			if (buff[i] != '2')
@@ -81,17 +88,18 @@ public class JpegData {
 				String year = new String(buff, i, 4);
 				String month = new String(buff, i+5, 2);
 				String date = new String(buff, i, 10);
-				
-				//System.out.printf("file=%s : [year=%s month=%s date=%s]\n",
-				//		jpegData.getOrgPath(), year, month, date);
+
+				logger.log(Level.FINE, "File={0} year={1} month={2} date={3}",
+						new Object[] {getOrgPath(), year, month, date});
 
 				setYear(year);
 				setMonth(month);
 				setDate(date);
+				result = true;
 				break;
 			}
 		}
-	
+		return result;
 	}
 
 	/**
@@ -101,13 +109,15 @@ public class JpegData {
 	 * @return
 	 */
 	private File getCopyFile(String outDir) {
-		//System.out.printf("copy in=%s out=%s\n", jpegData.getOrgPath(), outDir);
+		logger.log(Level.FINE, "Copy in={0} out={1}",
+				new Object[] {getOrgPath(), outDir});
+
 		// 出力先のディレクトリは存在する？
 		File file = new File(outDir);
 		if (!(file.exists())) {
 			boolean result = file.mkdirs();
 			if(result) {
-				System.out.printf("mkdir %s\n", file);
+				logger.log(Level.INFO, "mkdir outputdir={0}", file);
 			}
 		}
 		
@@ -119,7 +129,7 @@ public class JpegData {
 		if (!(file1.exists())) {
 			boolean result = file1.mkdirs();
 			if(result) {
-				System.out.printf("mkdir %s\n", file1);
+				logger.log(Level.INFO, "mkdir year dir={0}", file1);
 			}
 		}
 		// 出力先のディレクトリの下に年月のディレクトリは存在する？なければ作る
@@ -130,15 +140,13 @@ public class JpegData {
 		if (!(file2.exists())) {
 			boolean result = file2.mkdirs();
 			if(result) {
-				System.out.printf("mkdir %s\n", file2);
+				logger.log(Level.INFO, "mkdir month dir={0}", file2);
 			}
 		}
 		
-		// for debug
-		//System.out.println("File path = " + file2.toString());
 		buffer.append("\\");
 		buffer.append(getFilename());
-		System.out.printf("File=%s\n", buffer.toString());
+		logger.log(Level.INFO, "File={0}", buffer.toString());
 	
 		return new File(buffer.toString());
 	}

@@ -3,6 +3,8 @@ package vottie.imgmanager.service;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import vottie.imgmanager.model.JpegData;
 
@@ -13,7 +15,8 @@ public class JpegManager {
 	private String outDir;
 	// 写真オブジェクトのリスト
 	private ArrayList<JpegData> list = new ArrayList<JpegData>();
-
+	// Logger
+	private static Logger logger = Logger.getGlobal();
 	/**
 	 * Constructor
 	 */
@@ -36,10 +39,8 @@ public class JpegManager {
 				if (name.startsWith(".")) {
 					return false;
 				}
-				//System.out.printf("searchDir() name=%s\n", name);
 				if ((name.endsWith(".jpg")) || (name.endsWith(".JPG"))) {
 					String target = dir.getAbsolutePath() + File.separator + name;
-					// System.out.println("file: " + target);
 					
 					// 絶対パスとファイル名をコンストラクタに指定
 					JpegData jpeg = new JpegData(target, name);
@@ -57,7 +58,7 @@ public class JpegManager {
 
 		for (File f : files) {
 			if (f.isFile()) {
-				//System.out.println(f.getAbsolutePath());
+				logger.log(Level.FINE, "FILE={0}", f.getAbsolutePath());
 			}
 		}
 		return true;
