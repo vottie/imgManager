@@ -48,7 +48,7 @@ public class JpegData {
 			
 			// ファイルをparseして、日付やディレクトリ情報をjpegDataへ格納
 			if(!parse(buff)) {
-				logger.log(Level.WARNING, "parse failed {0}", getOrgPath());				
+				logger.log(Level.WARNING, "Exif read error   {0}", getOrgPath());				
 				return;
 			}
 			
@@ -58,7 +58,7 @@ public class JpegData {
 			// ファイルコピー
 			if (out.exists()) {
 				// もしファイルが既に存在した場合は、次のファイル処理を継続
-				logger.log(Level.INFO, "File is existed {0}", out.getAbsolutePath());
+				logger.log(Level.INFO, "File is existed   {0}", out.getAbsolutePath());
 			}
 			FileCopier.copy(in, out);
 			
@@ -117,7 +117,7 @@ public class JpegData {
 		if (!(file.exists())) {
 			boolean result = file.mkdirs();
 			if(result) {
-				logger.log(Level.INFO, "mkdir outputdir={0}", file);
+				logger.log(Level.FINE, "mkdir outputdir={0}", file);
 			}
 		}
 		
@@ -129,7 +129,7 @@ public class JpegData {
 		if (!(file1.exists())) {
 			boolean result = file1.mkdirs();
 			if(result) {
-				logger.log(Level.INFO, "mkdir year dir={0}", file1);
+				logger.log(Level.FINE, "mkdir year dir={0}", file1);
 			}
 		}
 		// 出力先のディレクトリの下に年月のディレクトリは存在する？なければ作る
@@ -140,13 +140,13 @@ public class JpegData {
 		if (!(file2.exists())) {
 			boolean result = file2.mkdirs();
 			if(result) {
-				logger.log(Level.INFO, "mkdir month dir={0}", file2);
+				logger.log(Level.FINE, "mkdir month dir={0}", file2);
 			}
 		}
 		
 		buffer.append("\\");
 		buffer.append(getFilename());
-		logger.log(Level.INFO, "File={0}", buffer.toString());
+		logger.log(Level.INFO, "Exif read success {0}", buffer.toString());
 	
 		return new File(buffer.toString());
 	}

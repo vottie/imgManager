@@ -1,5 +1,6 @@
 package vottie.imgmanager.ui;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,9 +18,15 @@ public class ExifReader {
 			System.out.println("ExifReader C:\\inputdir C:\\outputdir");
 			System.exit(-1);
 		}
+		
+		// input dir check
+	    File inDir = new File(args[0]);
+	    if (!inDir.exists()) {
+			System.out.println("invalid argument : " + args[0]);
+			System.exit(-1);
+		}
 	    
 		Logger.getGlobal().setLevel(Level.INFO);
-		Logger.getGlobal().info("ExifReader Start.");
 		// jpegファイルと出力先の指定を元にコピー開始
 		JpegManager manager = new JpegManager(args[0], args[1]);
 		manager.execute();
